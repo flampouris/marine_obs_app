@@ -1,0 +1,85 @@
+<!-- Diagnostic page to test data loading -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Marine App - Data Loading Diagnostics</title>
+  <style>
+    body { font-family: monospace; padding: 20px; background: #f5f5f5; }
+    .log { background: white; border: 1px solid #ccc; padding: 15px; margin: 10px 0; border-radius: 4px; }
+    .success { color: green; }
+    .error { color: red; font-weight: bold; }
+    .info { color: blue; }
+    .test { margin: 10px 0; padding: 10px; background: #e8f4f8; border-left: 4px solid #0066cc; }
+  </style>
+</head>
+<body>
+  <h1>Marine App - Data Loading Diagnostics</h1>
+  <div id="logs"></div>
+
+  <script>
+    const logs = document.getElementById('logs');
+    
+    function log(message, type = 'info') {
+      const logEl = document.createElement('div');
+      logEl.className = `log ${type}`;
+      logEl.innerHTML = `[${new Date().toLocaleTimeString()}] ${message}`;
+      logs.appendChild(logEl);
+      console.log(message);
+    }
+
+    function testFile(filename) {
+      return new Promise((resolve) => {
+        const startTime = performance.now();
+        fetch(filename, { cache: 'no-store' })
+          .then(r => {
+            const duration = (performance.now() - startTime).toFixed(2);
+            if (r.ok) {
+              log(`✓ ${filename} - Status ${r.status} - ${duration}ms`, 'success');
+              return r.json().then(() => {
+                log(`  ✓ Valid JSON`, 'success');
+                resolve(true);
+              }).catch(e => {
+                log(`  ✗ Invalid JSON: ${e.message}`, 'error');
+                resolve(false);
+              });
+            } else {
+              log(`✗ ${filename} - Status ${r.status} (${r.statusText}) - ${duration}ms`, 'error');
+              resolve(false);
+            }
+          })
+          .catch(e => {
+            const duration = (performance.now() - startTime).toFixed(2);
+            log(`✗ ${filename} - Network error: ${e.message} - ${duration}ms`, 'error');
+            resolve(false);
+          });
+      });
+    }
+
+    async function runDiagnostics() {
+      log('Starting diagnostics...', 'info');
+      log(`Current URL: ${window.location.href}`, 'info');
+      log(`Current Domain: ${window.location.origin}`, 'info');
+      
+      log('Testing required JSON files:', 'info');
+      
+      const files = [
+        'global_marine_observation_source_registry_v3.json',
+        'marine_parameter_dictionary_v2.json',
+        'marine_parameter_coverage_v2.json',
+        'marine_parameter_download_ids.json',
+        'world.geo.json'
+      ];
+
+      for (const file of files) {
+        await testFile(file);
+      }
+
+      log('Diagnostics complete. Check browser console for full details.', 'info');
+    }
+
+    runDiagnostics();
+  </script>
+</body>
+</html>
