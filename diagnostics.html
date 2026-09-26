@@ -1,69 +1,134 @@
-<!-- Diagnostic page to test data loading -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Marine App - Data Loading Diagnostics</title>
+  <title>Marine App - Advanced Diagnostics</title>
   <style>
-    body { font-family: monospace; padding: 20px; background: #f5f5f5; }
-    .log { background: white; border: 1px solid #ccc; padding: 15px; margin: 10px 0; border-radius: 4px; }
-    .success { color: green; }
-    .error { color: red; font-weight: bold; }
-    .info { color: blue; }
-    .test { margin: 10px 0; padding: 10px; background: #e8f4f8; border-left: 4px solid #0066cc; }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { 
+      font-family: 'Courier New', monospace; 
+      padding: 20px; 
+      background: #1e1e1e; 
+      color: #e0e0e0;
+    }
+    h1 { color: #4ec9b0; margin-bottom: 20px; }
+    .section { margin: 20px 0; }
+    .log { 
+      background: #252526; 
+      border-left: 4px solid #0066cc;
+      padding: 12px; 
+      margin: 8px 0; 
+      border-radius: 4px;
+      font-size: 12px;
+      word-break: break-all;
+    }
+    .success { border-left-color: #4ec9b0; color: #4ec9b0; }
+    .error { border-left-color: #f48771; color: #f48771; }
+    .warning { border-left-color: #dcdcaa; color: #dcdcaa; }
+    .info { border-left-color: #569cd6; color: #569cd6; }
+    button {
+      background: #0066cc;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      margin: 10px 0;
+      border-radius: 4px;
+      cursor: pointer;
+      font-family: monospace;
+    }
+    button:hover { background: #0052a3; }
   </style>
 </head>
 <body>
-  <h1>Marine App - Data Loading Diagnostics</h1>
+  <h1>Marine App - Advanced Diagnostics v2</h1>
+  
+  <div class="section">
+    <button onclick="runTests()">Run Full Diagnostic</button>
+    <button onclick="clearLogs()">Clear Logs</button>
+  </div>
+
   <div id="logs"></div>
 
   <script>
-    const logs = document.getElementById('logs');
-    
-    function log(message, type = 'info') {
+    const logsContainer = document.getElementById('logs');
+
+    function addLog(message, type = 'info') {
       const logEl = document.createElement('div');
       logEl.className = `log ${type}`;
-      logEl.innerHTML = `[${new Date().toLocaleTimeString()}] ${message}`;
-      logs.appendChild(logEl);
-      console.log(message);
+      const time = new Date().toLocaleTimeString();
+      logEl.textContent = `[${time}] ${message}`;
+      logsContainer.appendChild(logEl);
+      console.log(`[${type.toUpperCase()}] ${message}`);
+      logEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }
 
-    function testFile(filename) {
-      return new Promise((resolve) => {
-        const startTime = performance.now();
-        fetch(filename, { cache: 'no-store' })
-          .then(r => {
-            const duration = (performance.now() - startTime).toFixed(2);
-            if (r.ok) {
-              log(`✓ ${filename} - Status ${r.status} - ${duration}ms`, 'success');
-              return r.json().then(() => {
-                log(`  ✓ Valid JSON`, 'success');
-                resolve(true);
-              }).catch(e => {
-                log(`  ✗ Invalid JSON: ${e.message}`, 'error');
-                resolve(false);
-              });
-            } else {
-              log(`✗ ${filename} - Status ${r.status} (${r.statusText}) - ${duration}ms`, 'error');
-              resolve(false);
-            }
-          })
-          .catch(e => {
-            const duration = (performance.now() - startTime).toFixed(2);
-            log(`✗ ${filename} - Network error: ${e.message} - ${duration}ms`, 'error');
-            resolve(false);
-          });
-      });
+    function clearLogs() {
+      logsContainer.innerHTML = '';
     }
 
-    async function runDiagnostics() {
-      log('Starting diagnostics...', 'info');
-      log(`Current URL: ${window.location.href}`, 'info');
-      log(`Current Domain: ${window.location.origin}`, 'info');
+    async function testFileWithDetails(filename) {
+      const startTime = performance.now();
       
-      log('Testing required JSON files:', 'info');
-      
+      addLog(`Testing: ${filename}`, 'info');
+
+      try {
+        const response = await fetch(filename, { 
+          method: 'HEAD',
+          cache: 'no-store'
+        });
+        
+        const duration = (performance.now() - startTime).toFixed(2);
+        const statusText = response.statusText || 'Unknown';
+        
+        addLog(`  HEAD request: ${response.status} ${statusText} (${duration}ms)`, 
+          response.ok ? 'success' : 'warning');
+
+        // Now try GET to verify content
+        const getStart = performance.now();
+        const getResponse = await fetch(filename, { 
+          method: 'GET',
+          cache: 'no-store'
+        });
+        const getDuration = (performance.now() - getStart).toFixed(2);
+
+        addLog(`  GET request: ${getResponse.status} (${getDuration}ms)`, 
+          getResponse.ok ? 'success' : 'error');
+
+        if (getResponse.ok) {
+          const contentType = getResponse.headers.get('content-type');
+          const size = getResponse.headers.get('content-length');
+          addLog(`  Content-Type: ${contentType || 'unknown'}`, 'info');
+          addLog(`  Size: ${size || 'unknown'} bytes`, 'info');
+
+          try {
+            const data = await getResponse.json();
+            addLog(`  ✓ Valid JSON (${Object.keys(data).length} top-level keys)`, 'success');
+            return true;
+          } catch (e) {
+            addLog(`  ✗ Invalid JSON: ${e.message}`, 'error');
+            return false;
+          }
+        } else {
+          addLog(`  ✗ HTTP Error: ${getResponse.status}`, 'error');
+          return false;
+        }
+      } catch (error) {
+        addLog(`  ✗ Network Error: ${error.message}`, 'error');
+        return false;
+      }
+    }
+
+    async function runTests() {
+      clearLogs();
+      addLog('=== GitHub Pages Diagnostics ===', 'info');
+      addLog(`Domain: ${window.location.hostname}`, 'info');
+      addLog(`Full URL: ${window.location.href}`, 'info');
+      addLog(`Protocol: ${window.location.protocol}`, 'info');
+      addLog('', 'info');
+
+      // Test repo files
+      addLog('Testing JSON files:', 'info');
       const files = [
         'global_marine_observation_source_registry_v3.json',
         'marine_parameter_dictionary_v2.json',
@@ -72,14 +137,33 @@
         'world.geo.json'
       ];
 
+      let passed = 0;
       for (const file of files) {
-        await testFile(file);
+        const result = await testFileWithDetails(file);
+        if (result) passed++;
+        await new Promise(resolve => setTimeout(resolve, 500)); // Throttle requests
       }
 
-      log('Diagnostics complete. Check browser console for full details.', 'info');
+      addLog('', 'info');
+      addLog(`Results: ${passed}/${files.length} files loaded successfully`, 
+        passed === files.length ? 'success' : 'warning');
+
+      if (passed < files.length) {
+        addLog('⚠ Some files failed to load. Possible causes:', 'warning');
+        addLog('  1. GitHub Pages build still in progress (wait 2-5 minutes)', 'info');
+        addLog('  2. Files not committed to main branch', 'info');
+        addLog('  3. CORS or redirect issues', 'info');
+        addLog('  4. Check: https://github.com/flampouris/marine_obs_app/settings/pages', 'info');
+      } else {
+        addLog('✓ All data files are accessible!', 'success');
+        addLog('Next: Visit index.html and check browser console for any app-level errors', 'success');
+      }
     }
 
-    runDiagnostics();
+    // Auto-run on load
+    window.addEventListener('load', () => {
+      addLog('Page loaded. Click "Run Full Diagnostic" to start tests.', 'info');
+    });
   </script>
 </body>
 </html>
