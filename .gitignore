@@ -1,0 +1,19 @@
+# Local browser profiles created during UI testing
+.chrome-*/
+
+# Python environments and caches
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+
+# Local editor and operating-system files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Temporary and log files
+*.log
+*.tmp
+~$*.xlsx
