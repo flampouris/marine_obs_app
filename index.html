@@ -58,7 +58,7 @@
   </script>
   
   <title>Marine Observation Discovery - Global Marine Sources Registry</title>
-  <link rel="stylesheet" href="styles.css?v=registry-v3.2">
+  <link rel="stylesheet" href="styles.css?v=registry-v3.3">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='75' font-size='75'>≈</text></svg>">
 </head>
 <body>
@@ -79,7 +79,7 @@
       <p class="eyebrow">METADATA-FIRST DISCOVERY</p>
       <h1>Marine Observations: Find Sources and Basic Metadata.</h1>
       <p>Use this registry to discover or search for observation sources before downloading raw data. Narrow your results by canonical parameter, location, time, depth, platform, and quality metadata.</p>
-      <p>Select the "Inspect resource" links for more information and code examples to download the data. "Help & Dictionary" provide additional information. </p>
+      <p>Select the "Inspect source" links for more information and code examples to download the data. "Help & Dictionary" provide additional in depth information. </p>
 
     </div>
     <div class="intro-stat"><strong id="source-total">—</strong><span>registered sources</span></div>
@@ -108,8 +108,6 @@
       <label class="wide">QC / data mode<input id="qc-filter" placeholder="e.g. delayed-mode, real-time QC, adjusted"></label>
     </div>
     <div class="query-actions"><button id="run-query" class="primary">Find candidate sources</button><span id="query-summary"></span></div>
-    <div class="map-heading"><strong>Coverage map</strong><span>Updates with the active filters</span></div>
-    <div id="coverage-map" aria-label="Filtered source coverage map"></div>
   </section>
 
   <section class="notice">
@@ -120,6 +118,14 @@
   <section id="results" class="results"></section>
 </main>
 
+<footer class="site-footer">
+  <span>&copy; 2026 Stelios Flampouris, Ph.D.</span>
+  <nav aria-label="Footer links">
+    <a href="https://www.flampouris.com/">flampouris.com</a>
+    <a href="mailto:stelios@flampouris.com">Contact: stelios@flampouris.com</a>
+  </nav>
+</footer>
+
 <dialog id="source-dialog">
   <button class="dialog-close" id="close-dialog">×</button>
   <div id="dialog-content"></div>
@@ -128,6 +134,6 @@
 <script>
 window.addEventListener('error',function(e){var el=document.getElementById('registry-status');el&&(el.textContent='Error: '+e.message)})
 </script>
-<script src="app.js?v=registry-v3.1"></script>
+<script src="app.js?v=registry-v3.3"></script>
 </body>
 </html>
