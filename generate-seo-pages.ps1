@@ -3,9 +3,8 @@ $ErrorActionPreference = 'Stop'
 $root = $PSScriptRoot
 $baseUrl = 'https://www.flampouris.com/marine_obs_app'
 $registry = [IO.File]::ReadAllText((Join-Path $root 'global_marine_observation_source_registry_v3.json'), [Text.Encoding]::UTF8) | ConvertFrom-Json
-$dictionary = [IO.File]::ReadAllText((Join-Path $root 'marine_parameter_dictionary_v2.json'), [Text.Encoding]::UTF8) | ConvertFrom-Json
-$coverage = [IO.File]::ReadAllText((Join-Path $root 'marine_parameter_coverage_v2.json'), [Text.Encoding]::UTF8) | ConvertFrom-Json
-$downloads = [IO.File]::ReadAllText((Join-Path $root 'marine_parameter_download_ids.json'), [Text.Encoding]::UTF8) | ConvertFrom-Json
+$dictionary = [IO.File]::ReadAllText((Join-Path $root 'marine_parameter_dictionary_v3.json'), [Text.Encoding]::UTF8) | ConvertFrom-Json
+$parameterCoverage = @($registry.parameter_coverage_v2)
 $utf8 = New-Object System.Text.UTF8Encoding($false)
 
 function HtmlEncode([object]$value) { [Net.WebUtility]::HtmlEncode([string]$value) }
@@ -35,7 +34,7 @@ foreach ($source in $sources) { $sourceById[[string]$source.'Source ID'] = $sour
 $sourceSlugs = @{}
 foreach ($source in $sources) { $sourceSlugs[[string]$source.'Source ID'] = "$(Slug ([string]$source.'Source ID'))-$(Slug ([string]$source.Source))" }
 
-$parameterStats = @($coverage.parameter_coverage | Group-Object canonical_parameter | ForEach-Object {
+$parameterStats = @($parameterCoverage | Group-Object canonical_parameter | ForEach-Object {
   [pscustomobject]@{ Key = $_.Name; SourceCount = @($_.Group.source_id | Sort-Object -Unique).Count }
 } | Sort-Object @{Expression='SourceCount';Descending=$true}, @{Expression='Key';Descending=$false})
 $selectedParameters = @($parameterStats | Select-Object -First $ParameterLimit)
@@ -45,8 +44,8 @@ foreach ($source in $sources) {
   $id = [string]$source.'Source ID'
   $slug = $sourceSlugs[$id]
   $url = "$baseUrl/sources/$slug/"
-  $mappings = @($coverage.parameter_coverage | Where-Object { [string]$_.source_id -eq $id } | Sort-Object canonical_parameter -Unique)
-  $targetRows = @($downloads.download_targets | Where-Object { [string]$_.source_id -eq $id })
+  $mappings = @($parameterCoverage | Where-Object { [string]$_.source_id -eq $id } | Sort-Object canonical_parameter -Unique)
+  $targetRows = @($registry.download_targets | Where-Object { [string]$_.source_id -eq $id })
   $parameterLinkItems = @()
   foreach ($mapping in $mappings) {
     $key = [string]$mapping.canonical_parameter
@@ -84,7 +83,7 @@ foreach ($stat in $selectedParameters) {
   if ($null -eq $parameter) { continue }
   $slug = Slug $key
   $url = "$baseUrl/parameters/$slug/"
-  $mappings = @($coverage.parameter_coverage | Where-Object { [string]$_.canonical_parameter -eq $key })
+  $mappings = @($parameterCoverage | Where-Object { [string]$_.canonical_parameter -eq $key })
   $mappedSourceIds = @($mappings.source_id | Sort-Object -Unique)
   $sourceLinkItems = @()
   foreach ($mappedSourceId in $mappedSourceIds) {

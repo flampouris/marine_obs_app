@@ -1,9 +1,8 @@
 param([switch]$ProbeCatalogUrls)
 $ErrorActionPreference = 'Stop'
 $root = $PSScriptRoot
-$registry = Get-Content -Raw (Join-Path $root 'global_marine_observation_source_registry_v3.json') | ConvertFrom-Json
-$downloadCatalog = Get-Content -Raw (Join-Path $root 'marine_parameter_download_ids.json') | ConvertFrom-Json
-$targets = @($downloadCatalog.download_targets)
+$registry = [IO.File]::ReadAllText((Join-Path $root 'global_marine_observation_source_registry_v3.json'), [Text.Encoding]::UTF8) | ConvertFrom-Json
+$targets = @($registry.download_targets)
 $results = foreach ($source in $registry.sources) {
   $rows = @($targets | Where-Object source_id -eq $source.'Source ID')
   $preferred = @($rows | Where-Object preferred -eq 'Yes' | Select-Object -First 1)

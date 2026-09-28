@@ -1,6 +1,6 @@
 # Marine Observation Discovery
 
-This app is built from the versioned `_v3` registry and download inputs: `global_marine_observation_source_registry_v3.json`, `marine_parameter_download_ids.json`, `marine_parameter_dictionary_v2.json`, and `marine_parameter_coverage_v2.json`. It is a metadata-first discovery tool for investigating which registered sources may contain an observation by:
+This app uses only two versioned v3 runtime inputs: `global_marine_observation_source_registry_v3.json` and `marine_parameter_dictionary_v3.json`. It is a metadata-first discovery tool for investigating which registered sources may contain an observation by:
 
 - Canonical parameter family and canonical parameter
 - Source or network
@@ -14,7 +14,7 @@ The registry describes source capabilities and query dimensions. It does not its
 
 ## Versioned inputs
 
-The page loads the `_v3` registry and download-target JSON directly. They contain 42 sources, 96 canonical parameters, 368 parameter mappings, 259 parameter-specific download targets, provider dataset IDs, URL templates, variable selectors, access protocols, authentication requirements, and download-readiness statuses. This includes mappings such as Conservative Temperature where the native metadata or CF standard name supports it.
+The page loads the v3 source registry and v3 canonical dictionary directly. The registry embeds the coverage mappings and download-target catalog, so the browser does not load the older standalone v2 coverage file or the unversioned download-ID file. Together, the two v3 inputs contain 42 sources, 96 canonical parameters, 368 parameter mappings, 259 parameter-specific download targets, provider dataset IDs, URL templates, variable selectors, access protocols, authentication requirements, and download-readiness statuses. This includes mappings such as Conservative Temperature where the native metadata or CF standard name supports it.
 
 The coverage index supplies numeric latitude/longitude bounds, start/end dates, depth bounds, vertical reference, coverage status, and precision readiness. The UI uses range overlap for location, time, and depth filters. Rows marked `coarse_envelope`, `dynamic_required`, or `review_required` are routing-level coverage and should not be interpreted as exact observation existence until the specified connector harvest is run.
 

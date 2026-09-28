@@ -25,6 +25,10 @@ jobs:
         shell: pwsh
         run: ./test-ui-contract.ps1
 
+      - name: Verify exclusive v3 runtime inputs
+        shell: pwsh
+        run: ./test-v3-inputs.ps1
+
       - name: Generate static source and parameter pages
         shell: pwsh
         run: ./generate-seo-pages.ps1
