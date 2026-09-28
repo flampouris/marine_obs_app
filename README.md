@@ -76,3 +76,5 @@ Validate that `index.html` still provides every element required by `app.js`:
 ```powershell
 powershell -NoProfile -ExecutionPolicy Bypass -File .\test-ui-contract.ps1
 ```
+
+The GitHub Pages workflow runs this check before uploading the website. It verifies every literal `$('element-id')` reference in `app.js`, rejects undeclared or missing IDs, and rejects duplicate IDs in `index.html`.
