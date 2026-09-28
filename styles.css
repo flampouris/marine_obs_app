@@ -15,3 +15,4 @@
 .walkthrough h3,.help-card h3,.source-help-card h3{color:#fff}.walkthrough span{color:#b7e1da}
 .topbar:has(.help-nav){justify-content:space-between}.help-nav{margin-left:auto}
 .dictionary-table .native-alias strong{color:#b7e1da}.dictionary-table .native-alias small{color:#e6eeee}
+.intro-stat strong{color:#fff}.intro-stat span,.results-head>span{color:#d7e1e0}
