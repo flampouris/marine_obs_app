@@ -14,7 +14,7 @@ The registry describes source capabilities and query dimensions. It does not its
 
 ## Versioned inputs
 
-The page loads the `_v3` registry and download-target JSON directly. They contain 42 sources, 96 canonical parameters, 368 parameter mappings, 259 parameter-specific download targets, provider dataset IDs, URL templates, variable selectors, access protocols, authentication requirements, and download-readiness statuses. This includes mappings such as Conservative Temperature where the native metadata or CF standard name supports it. The map uses the local `world.geo.json` coastline asset, so the Earth map does not depend on an online tile service.
+The page loads the `_v3` registry and download-target JSON directly. They contain 42 sources, 96 canonical parameters, 368 parameter mappings, 259 parameter-specific download targets, provider dataset IDs, URL templates, variable selectors, access protocols, authentication requirements, and download-readiness statuses. This includes mappings such as Conservative Temperature where the native metadata or CF standard name supports it.
 
 The coverage index supplies numeric latitude/longitude bounds, start/end dates, depth bounds, vertical reference, coverage status, and precision readiness. The UI uses range overlap for location, time, and depth filters. Rows marked `coarse_envelope`, `dynamic_required`, or `review_required` are routing-level coverage and should not be interpreted as exact observation existence until the specified connector harvest is run.
 
@@ -78,3 +78,17 @@ powershell -NoProfile -ExecutionPolicy Bypass -File .\test-ui-contract.ps1
 ```
 
 The GitHub Pages workflow runs this check before uploading the website. It verifies every literal `$('element-id')` reference in `app.js`, rejects undeclared or missing IDs, and rejects duplicate IDs in `index.html`.
+
+Generate the crawlable SEO pages, sitemap, and robots file with:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File .\generate-seo-pages.ps1
+```
+
+This creates one static page for each of the 42 sources and pages for the 40 canonical parameters mapped by the largest number of distinct sources. The Pages workflow regenerates them before every deployment.
+
+Validate the generated canonical URLs, sitemap, UTF-8 content, and JSON-LD with:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File .\test-seo-pages.ps1
+```

@@ -25,6 +25,14 @@ jobs:
         shell: pwsh
         run: ./test-ui-contract.ps1
 
+      - name: Generate static source and parameter pages
+        shell: pwsh
+        run: ./generate-seo-pages.ps1
+
+      - name: Validate SEO pages and metadata
+        shell: pwsh
+        run: ./test-seo-pages.ps1
+
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
 
