@@ -70,3 +70,9 @@ Run the full canonical-parameter coverage check:
 ```powershell
 powershell -NoProfile -ExecutionPolicy Bypass -File .\validate-parameter-filter.ps1
 ```
+
+Validate that `index.html` still provides every element required by `app.js`:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File .\test-ui-contract.ps1
+```

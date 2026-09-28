@@ -58,7 +58,7 @@
   </script>
   
   <title>Marine Observation Discovery - Global Marine Sources Registry</title>
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="styles.css?v=registry-v3.1">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='75' font-size='75'>≈</text></svg>">
 </head>
 <body>
@@ -69,6 +69,7 @@
   </div>
   <div>
     <a class="help-link" href="help.html">Help &amp; dictionary</a>
+    <span class="top-status" id="registry-status">Registry loading…</span>
   </div>
 </header>
 
@@ -77,8 +78,9 @@
     <div>
       <p class="eyebrow">METADATA-FIRST DISCOVERY</p>
       <h1>Where and when might an observation exist?</h1>
-      <p>Search the registry before downloading raw data. The registry contains 42 sources, 96 canonical parameters, and 259 parameter-specific download targets.</p>
+      <p>Search the registry before downloading raw data. Narrow by canonical parameter, location, time, depth, platform, and quality metadata.</p>
     </div>
+    <div class="intro-stat"><strong id="source-total">—</strong><span>registered sources</span></div>
   </section>
 
   <section class="query-card">
@@ -89,72 +91,31 @@
       </div>
       <button id="reset-query" class="ghost">Reset</button>
     </div>
-    <div class="query-body">
-      <div class="input-group">
-        <label for="parameter-family">Canonical Parameter Family</label>
-        <select id="parameter-family"></select>
-      </div>
-      <div class="input-group">
-        <label for="observation-type">Canonical Parameter</label>
-        <select id="observation-type"></select>
-      </div>
-      <div class="input-group">
-        <label for="source-filter">Source or Network</label>
-        <input id="source-filter" type="text" placeholder="e.g., NOAA, Argo, Copernicus">
-      </div>
-      <div class="input-group">
-        <label for="platform-filter">Platform or Sensor</label>
-        <input id="platform-filter" type="text" placeholder="e.g., float, glider, mooring">
-      </div>
-      <div class="input-group">
-        <label for="latitude">Latitude</label>
-        <input id="latitude" type="number" min="-90" max="90" placeholder="-90 to 90">
-      </div>
-      <div class="input-group">
-        <label for="longitude">Longitude</label>
-        <input id="longitude" type="number" min="-180" max="180" placeholder="-180 to 180">
-      </div>
-      <div class="input-group">
-        <label for="search-radius">Radius (km)</label>
-        <input id="search-radius" type="number" min="0" placeholder="Search radius">
-      </div>
-      <div class="input-group">
-        <label for="start-date">Start Date</label>
-        <input id="start-date" type="date">
-      </div>
-      <div class="input-group">
-        <label for="end-date">End Date</label>
-        <input id="end-date" type="date">
-      </div>
-      <div class="input-group">
-        <label for="depth-min">Depth Min (m)</label>
-        <input id="depth-min" type="number" placeholder="Minimum depth">
-      </div>
-      <div class="input-group">
-        <label for="depth-max">Depth Max (m)</label>
-        <input id="depth-max" type="number" placeholder="Maximum depth">
-      </div>
-      <div class="input-group">
-        <label for="qc-filter">QC or Data Mode</label>
-        <input id="qc-filter" type="text" placeholder="e.g., good_data, real_time">
-      </div>
+    <div class="query-grid">
+      <label>Parameter family<select id="parameter-family"><option value="">Any parameter family</option></select></label>
+      <label class="wide">Canonical parameter<select id="observation-type"><option value="">Any canonical parameter</option></select></label>
+      <label>Source / network<select id="source-filter"><option value="">Any source</option></select></label>
+      <label>Platform / sensor<input id="platform-filter" placeholder="e.g. profiling float, buoy"></label>
+      <label>Latitude<input id="latitude" type="number" min="-90" max="90" step="any" placeholder="e.g. 35.0"></label>
+      <label>Longitude<input id="longitude" type="number" min="-180" max="180" step="any" placeholder="e.g. -120.0"></label>
+      <label>Radius (km)<input id="radius" type="number" min="0" step="any" placeholder="Optional"></label>
+      <label>Start time<input id="start-time" type="date"></label>
+      <label>End time<input id="end-time" type="date"></label>
+      <label>Minimum depth (m)<input id="depth-min" type="number" min="0" step="any" placeholder="Optional"></label>
+      <label>Maximum depth (m)<input id="depth-max" type="number" min="0" step="any" placeholder="Optional"></label>
+      <label class="wide">QC / data mode<input id="qc-filter" placeholder="e.g. delayed-mode, real-time QC, adjusted"></label>
     </div>
+    <div class="query-actions"><button id="run-query" class="primary">Find candidate sources</button><span id="query-summary"></span></div>
+    <div class="map-heading"><strong>Coverage map</strong><span>Updates with the active filters</span></div>
+    <div id="coverage-map" aria-label="Filtered source coverage map"></div>
   </section>
-
-  <section id="coverage-map"></section>
 
   <section class="notice">
     <strong>Interpretation:</strong> results are metadata-capable candidate sources from the registry. A connector must query the provider before the app can confirm that a match exists.
   </section>
 
-  <section class="results">
-    <div class="results-header">
-      <p class="eyebrow">RESULTS</p>
-      <h2><span id="results-count">0</span> sources</h2>
-      <p id="registry-status"></p>
-    </div>
-    <div id="results"></div>
-  </section>
+  <section class="results-head"><div><p class="eyebrow">CANDIDATE SOURCES</p><h2 id="results-title">All registered sources</h2></div><span id="results-count"></span></section>
+  <section id="results" class="results"></section>
 </main>
 
 <dialog id="source-dialog">
@@ -165,6 +126,6 @@
 <script>
 window.addEventListener('error',function(e){var el=document.getElementById('registry-status');el&&(el.textContent='Error: '+e.message)})
 </script>
-<script src="app.js"></script>
+<script src="app.js?v=registry-v3.1"></script>
 </body>
 </html>
